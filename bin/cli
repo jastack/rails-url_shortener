@@ -1,0 +1,33 @@
+puts "What is your email?"
+
+email = gets.chomp
+this_user = User.find_by(email: email)
+
+until this_user
+  puts "We couldn't find that email! What is your email?"
+  this_user = User.find_by(email: gets.chomp)
+end
+
+puts "If you would like to visit a URL type 1, if you would like to create a new one type 2"
+
+reply = gets.chomp
+
+until reply == "1" || reply == "2"
+  puts "We didn't understand that--please input 1 (visit shortened URL) or 2 (shorten a new URL)"
+  reply = gets.chomp
+end
+
+reply = reply.to_i
+
+if reply == 1
+  puts "Input the shortened URL"
+  short_url = gets.chomp
+  shortened_url_obj = ShortenedUrl.find_by(short_url: short_url)
+  Launchy.open(shortened_url_obj.long_url)
+  Visit.record_visit!(this_user, shortened_url_obj)
+else
+  puts "Input the URL you'd like to shorten"
+  long_url = gets.chomp
+  this_shortened_url = ShortenedUrl.shorten(this_user, long_url)
+  puts "Here's your shortened URL: #{this_shortened_url.short_url}"
+end
